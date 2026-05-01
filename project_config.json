@@ -1,0 +1,336 @@
+{
+  "project_name": "Quality Training Camp Automation Management",
+  "project_owner": "Cheng Ge",
+  "project_assistant": "Xiao Liu Zi",
+  "start_date": "2026-03-28",
+  "version": "1.1.0",
+  "update_date": "2026-04-27",
+  
+  "core_tasks": [
+    "Automated implementation of quality training camp project",
+    "Automated management of daily quality inspection entry/exit pool personnel",
+    "Design follow-up training directions based on entry/exit pool personnel",
+    "Project progress tracking and report generation"
+  ],
+  
+  "time_concept_specification": {
+    "document": "quality_training/docs/time_concept_specification.md",
+    "core_rule": "Today checks yesterday's work orders, tomorrow issues today's quality inspection data",
+    "time_relationship": "Work order generation day → (+1 day) → Work order sampling day → (+1 day) → Quality inspection daily report file issuance day (= natural day)",
+    "daily_date_relationship": {
+      "current_date": "Natural day (today)",
+      "quality_data_date": "Yesterday (current_date - 1 day)",
+      "work_order_date": "Day before yesterday (current_date - 2 days)",
+      "file_title_date": "Work order date (day before yesterday)",
+      "file_naming_rule": "Quality daily report is named after work order date",
+      "example_2026_04_12": {
+        "current_date": "2026-04-12",
+        "quality_data_date": "2026-04-11",
+        "work_order_date": "2026-04-10",
+        "file_title": "0410 Technical Support Center 2 Quality Daily Report.xlsx",
+        "explanation": "File is named after work order date (0410), not quality data date (0411)"
+      }
+    },
+    "report_naming": "MMDD Technical Support Center 2 Quality Daily Report.xlsx",
+    "file_format": "Excel",
+    "exception_handling": {
+      "holiday_delay": "Delayed release, naming unchanged",
+      "long_holiday_merge": "Merged release, naming like [Start date-End date] Technical Support Center 2 Quality Daily Report",
+      "data_error": "Processed through appeal window"
+    }
+  },
+  
+  "entry_exit_pool_rules": {
+    "document": "quality_training/docs/entry_exit_pool_rules_interpretation.md",
+    "version": "1.2",
+    "update_date": "2026-04-30",
+    "update_reason": "补充虚假工单入池规则（中英文队列均适用）",
+    "source_documents": [
+      "https://sparkedu.feishu.cn/docx/S0CYdy9jIoMFrjxdl10coy8PnOf",
+      "https://sparkedu.feishu.cn/docx/LdFod8QTzoxJK5xQLp4c1nMVnff"
+    ],
+    "penalty_severity_hierarchy": {
+      "description": "扣罚严重程度等级（由低到高）",
+      "levels": [
+        "普通扣分（质检得分<95但无当通为零/当月为零/虚假）",
+        "当通为零",
+        "当月为零",
+        "虚假工单",
+        "团队红线"
+      ],
+      "rule": "入池规则中的'及以上程度'=本级及更高等级的扣罚"
+    },
+    "queue_differences": {
+      "chinese_queue": {
+        "entry_conditions": ["Single 'monthly zero' or above penalty (including 虚假工单)", "Two consecutive weeks of 'current pass zero' (natural week)"],
+        "exit_conditions": "14 consecutive days without 'current pass zero' or above penalty (including entry day)",
+        "refresh_rules": "New penalty within 14 days (including 虚假工单) refreshes entry time",
+        "exit_observation_period": "Natural days consecutive calculation (e.g., March 30 entry, observation period March 30-April 12)"
+      },
+      "english_queue": {
+        "entry_conditions": "Single 'current pass zero' or above penalty (including 虚假工单)",
+        "exit_conditions": "7 consecutive days without 'current pass zero' or above penalty",
+        "refresh_rules": "New penalty within 7 days (including 虚假工单) refreshes entry time"
+      }
+    },
+    "key_rules": {
+      "entry_execution_day": "Quality inspection daily report file issuance day",
+      "exit_calculation": "Including entry day, calculated by consecutive natural days",
+      "time_refresh": "New penalty refreshes entry time",
+      "consecutive_weeks_definition": "Judged by natural week, not any 14 days"
+    },
+    "false_work_order_rule": {
+      "description": "虚假工单属于'及以上程度'扣罚，中英文队列均适用",
+      "chinese_queue": {
+        "entry": "单次虚假工单及以上程度 → 当日入池（同当月为零规则）",
+        "refresh": "在池期间出现虚假工单 → 入池时间刷新"
+      },
+      "english_queue": {
+        "entry": "单次虚假工单及以上程度 → 当日入池（同当通为零规则）",
+        "refresh": "在池期间出现虚假工单 → 入池时间刷新"
+      }
+    }
+  },
+  
+  "data_dictionary": {
+    "document": "quality_training/docs/data_dictionary.md",
+    "version": "1.1",
+    "source_document": "https://sparkedu.feishu.cn/docx/BwW8dgbVfoQZL7xu7dScAmOcnqh",
+    "table_token": "[REDACTED] 替换为你自己的表格token",
+    "access_status": "✅ Full authorization completed, data read",
+    "data_retrieval_time": "2026-03-30 10:42",
+    "table_range": "hzaFTZ!A1:H48",
+    "main_content": [
+      "Five-level penalty classification system",
+      "Business domain classification (service specifications, case handling, work order backfilling)",
+      "Special rule system (accumulation rules, protection rules)",
+      "Precise mapping with entry/exit pool rules",
+      "Automation system field definitions"
+    ],
+    "penalty_type_statistics": {
+      "team_red_line": 4,
+      "false_work_order": 1,
+      "monthly_zero": 8,
+      "current_pass_zero": 9,
+      "ordinary_deduction": "Multiple items"
+    }
+  },
+  
+  "directory_structure": {
+    "data": "Store raw data, processed data files",
+    "scripts": "Automation scripts, processing programs",
+    "reports": "Daily reports, analysis reports, summary reports",
+    "backup": "Project file backup",
+    "docs": "Project documents, specification descriptions"
+  },
+  
+  "security_rules": {
+    "operation_request": "All file modification operations must be requested",
+    "simulation_test": "Simulation testing must be performed before operation",
+    "backup_strategy": "Incremental backup at 23:00 daily",
+    "summary_mechanism": "Generate summary report at 20:00 daily"
+  },
+  
+  "communication_specification": {
+    "request_format": "[Request] Need to execute XXX operation, affecting file YYY, please confirm.",
+    "status_feedback": "[Status] Task: XXX, Progress: X/Y, Current: ZZZ",
+    "report_time": "Automatically generate summary report at 20:00 daily"
+  },
+  
+  "technical_configuration": {
+    "workspace": "/Users/chengzi/.openclaw/agents/quality-assistant/workspace",
+    "default_model": "deepseek/deepseek-chat",
+    "backup_location": "/Users/chengzi/.openclaw/agents/quality-assistant/workspace/backup (to be confirmed)",
+    "time_calculation": {
+      "date_format": "YYYY-MM-DD",
+      "time_offset": "+1 day",
+      "holiday_processing": "Postponed"
+    }
+  },
+  
+  "group_filtering_rules": {
+    "version": "2.0",
+    "effective_date": "2026-04-06",
+    "rule_description": "The following groups do not belong to Technical Support Center 2 and do not participate in training camp entry/exit pool rules. Daily data analysis does not need to analyze data from these two organizations.",
+    
+    "excluded_groups": ["中文技术6组", "英文技术2组"],
+    "analysis_groups": ["中文技术2组", "中文技术7组", "英文技术1组"],
+    
+    "processing_scheme": {
+      "scheme_A_complete_filtering": {
+        "description": "Exclude data from these two groups at the data reading stage, completely not participating in any processing flow",
+        "advantages": "Highest efficiency, reduces data processing volume",
+        "disadvantages": "Incomplete data, cannot view raw data of excluded groups",
+        "recommended": true
+      },
+      "scheme_B_read_not_process": {
+        "description": "Read all data, but exclude data from these two groups during analysis and display stages",
+        "advantages": "Complete data, can view raw data",
+        "disadvantages": "Slightly lower processing efficiency",
+        "recommended": false
+      },
+      "current_scheme": "scheme_A_complete_filtering"
+    },
+    
+    "filtering_logic": {
+      "data_reading": "Decide whether to read data from excluded groups based on selected scheme",
+      "data_analysis": "Completely do not analyze data from excluded groups",
+      "data_display": "Completely do not display data from excluded groups",
+      "historical_records": "Imported records from excluded groups marked as 'non-center-2-groups'",
+      "report_generation": "Reports completely do not contain any information from excluded groups"
+    },
+    
+    "technical_implementation": {
+      "reading_filter": "read_data_with_filter(source, excluded_groups, filter_at_read=true)",
+      "analysis_filter": "analyze_data_with_exclusion(data, excluded_groups)",
+      "display_filter": "display_data_with_exclusion(results, excluded_groups)",
+      "validation_logic": "Group field validation and multi-level filtering",
+      "error_handling": "Unknown group prompt, record and skip"
+    }
+  },
+
+  "history_penalty_table_processing": {
+    "version": "1.0",
+    "effective_date": "2026-04-10",
+    "update_reason": "Optimize field data source mapping and '是否已处理' field automation logic",
+    
+    "table_configuration": {
+      "app_token": "[REDACTED] 替换为你自己的app_token",
+      "table_id": "tbl9S8bJoYhKzHXN",
+      "table_name": "历史扣罚表"
+    },
+    
+    "field_data_source_mapping": {
+      "关联记录ID": {
+        "source": "system_generated",
+        "format": "PENALTY_YYYYMMDD_序号",
+        "generation_rule": "自动生成，基于日期和序号",
+        "example": "PENALTY_20260408_1"
+      },
+      "组别1": {
+        "source": "quality_report",
+        "field_name": "组别",
+        "validation": "必须从质检日报'组别'列读取",
+        "processing": "直接映射，无需转换"
+      },
+      "姓名": {
+        "source": "quality_report",
+        "field_name": "姓名",
+        "validation": "必须从质检日报'姓名'列读取",
+        "processing": "直接映射，无需转换"
+      },
+      "工单编号": {
+        "source": "quality_report",
+        "field_name": "工单编号",
+        "validation": "必须从质检日报'工单编号'列读取",
+        "processing": "直接映射，无需转换"
+      },
+      "工单处理完成时间": {
+        "source": "quality_report",
+        "field_name": "工单处理完成时间",
+        "validation": "必须从质检日报'工单处理完成时间'列读取",
+        "processing": "日期字符串转换为时间戳（毫秒）",
+        "format_example": "2026/4/8 → 1744041600000"
+      },
+      "扣罚类型": {
+        "source": "quality_report_analysis",
+        "field_name": "当通为零/当月为零/虚假",
+        "validation": "根据质检日报扣罚字段判断",
+        "note": "扣罚等级：当通为零 < 当月为零 < 虚假工单 < 团队红线，'及以上程度'规则涵盖所有更高级别扣罚",
+        "mapping": {
+          "当通为零": "当通为零",
+          "当月为零": "当月为零",
+          "虚假": "虚假工单",
+          "team_red_line": "团队红线"
+        }
+      },
+      "扣罚详情": {
+        "source": "quality_report",
+        "field_name": "备注",
+        "validation": "从质检日报'备注'列提取",
+        "processing": "提取关键扣罚描述，可组合多个字段"
+      },
+      "是否已处理": {
+        "source": "system_logic",
+        "validation": "根据出入池规则自动设置",
+        "logic": {
+          "pre_check_phase": {
+            "need_entry_pool": "否",
+            "record_only_no_entry": "是",
+            "excluded_group": "是"
+          },
+          "formal_execution_phase": {
+            "after_entry_pool_adjustment": "是"
+          }
+        },
+        "automation": "完全自动化，无需人工手动更改"
+      },
+      "备注": {
+        "source": "system_generated",
+        "content": "添加处理说明和来源信息",
+        "format": "YYYYMMDD质检日报 - [处理说明]",
+        "example": "0408质检日报 - 需要入池（英文队列单次当通为零）"
+      }
+    },
+    
+    "processing_workflow": {
+      "pre_check_phase": {
+        "time_window": "13:00-18:50",
+        "operations": [
+          "读取质检日报数据",
+          "验证字段数据来源",
+          "判断是否需要入池",
+          "写入历史扣罚表",
+          "设置'是否已处理'字段状态"
+        ],
+        "output": "预检报告 + 历史扣罚表记录"
+      },
+      "formal_execution_phase": {
+        "time_window": "18:50后",
+        "operations": [
+          "查询'是否已处理' = '否'的记录",
+          "执行出入池调整",
+          "更新历史扣罚表状态",
+          "生成执行报告"
+        ],
+        "output": "训练营表格更新 + 状态同步"
+      }
+    },
+    
+    "data_validation_rules": {
+      "field_existence_check": "确保质检日报有对应列",
+      "data_format_validation": "验证数据类型和格式",
+      "null_value_handling": "处理缺失数据",
+      "anomaly_detection": "检测异常数据格式",
+      "consistency_verification": "确保数据一致性"
+    },
+    
+    "error_handling_mechanism": {
+      "data_reading_errors": {
+        "missing_fields": "记录错误并跳过该记录",
+        "format_errors": "尝试修复或记录异常",
+        "encoding_issues": "处理字符编码异常",
+        "data_anomalies": "标记异常并记录日志"
+      },
+      "writing_errors": {
+        "api_call_failures": "重试机制（最多3次）",
+        "data_format_errors": "修正后重试",
+        "permission_issues": "记录并请求授权",
+        "system_exceptions": "记录详细错误信息"
+      },
+      "status_sync_errors": {
+        "status_update_failures": "重试机制",
+        "data_inconsistencies": "重新同步",
+        "concurrency_issues": "加锁机制",
+        "network_anomalies": "断点续传"
+      }
+    },
+    
+    "quality_assurance": {
+      "double_validation": "规则验证 + 数据验证",
+      "automation_level": "完全自动化，无需人工干预",
+      "traceability": "完整操作记录和决策追溯",
+      "monitoring": "实时状态监控和报警"
+    }
+  }
+}
